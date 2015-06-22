@@ -7,7 +7,7 @@ RED = (0, 0, 255)
 GREEN = (0, 255, 0)
 
 # Kernal size and standard deviation for Gaussian blurring process.
-KERNAL_SIZE = (5, 5)
+KERNAL_SIZE = (49, 49)
 STANDARD_DEVIATION = 0
 
 # Font definitions
@@ -24,6 +24,9 @@ THRESH_VAL = 25
 # Maximum value to use with the THRESH_BINARY
 # and THRESH_BINARY_INV thresholding types.
 MAX_VAL = 255
+
+# The delay of key waiting in cv2
+DELAY = 1
 
 class Target(object):
 	"""Target monitoring system for limited area."""
@@ -65,6 +68,7 @@ class Target(object):
 			# If the first frame is None, initialize the first frame.
 			if first_frame is None:
 				first_frame = gray
+				continue
 			
 		    # Compute the absolute difference between
 			# the current frame and the first frame.
@@ -75,7 +79,7 @@ class Target(object):
 			# then find contours on the thresholded image.
 			thresh = cv2.dilate(thresh, None, iterations = 2)
 			contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
-						  cv2.CHAIN_APPROX_SIMPLE)
+						  				   cv2.CHAIN_APPROX_SIMPLE)
 
 			# Iterate through the contours.
 			for contour in contours:
@@ -95,7 +99,7 @@ class Target(object):
 						(X_COORD, 2 * X_COORD), cv2.FONT_HERSHEY_SIMPLEX,
 						FONT_SIZE, RED, BOLD)
 			cv2.putText(frame,
-						datetime.datetime.now().strftime('%A %d %B %Y'
+						datetime.datetime.now().strftime('%A %d %B %Y '
 														 '%I:%M:%S%p'),
 						(X_COORD, frame.shape[0] - X_COORD),
 						cv2.FONT_HERSHEY_SIMPLEX, FONT_SIZE,RED, NORMAL)
@@ -104,7 +108,7 @@ class Target(object):
 			cv2.imshow('Security Feed', frame)
 
 			# Wait for a exit signal that is a letter `q` or `Q` from the user.
-			key = cv2.waitKey() & 0xFF
+			key = cv2.waitKey(DELAY) & 0xFF
 			if key == ord('q') or key == ord('Q'):
 				break
 
