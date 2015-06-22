@@ -1,11 +1,20 @@
 # Immobility-Visualizer
-This if a visualizer to recognize objects and track their motion within a relatively small area
+This is a visualizer to recognize objects and track their motion within a relatively small area.
 
-usage: detector.py [-h] [-v VIDEO] [-a MIN_PIXELS]
+Requirements:
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -v VIDEO, --video VIDEO
-	                    path to the video file
-  -a MIN_PIXELS, --min-pixels MIN_PIXELS
-			            minimum changed pixel number
+	Python: 2.7.x
+	OpenCV: 2.4.x
+
+Usage: Python detector.py [-h] [-v VIDEO] [-a MIN_PIXELS]
+
+Optional arguments:
+
+  	-h, --help
+  		Show this help message and exit.
+  	-v --video <VIDEO>
+  		Path to the video file that is for testing with a recorded video.
+  	-a --min-pixels <MIN_PIXELS>
+  		Minimum changed pixel number that is for determining contours.
+  		
+To quit the Python window, press `q` or `Q` to quit the program.
