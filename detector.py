@@ -91,6 +91,9 @@ class Target(object):
 				# Compute the bounding box for the contour, draw
 				# it on the frame, and update the text.
 				x, y, w, h = cv2.boundingRect(contour)
+				# Filter out the hand.
+				if x == 1 or y == 1 or w == 1 or h == 1:
+					continue
 				cv2.rectangle(frame, (x, y), (x + w, y + h), GREEN)
 				text = 'Changed'
 
