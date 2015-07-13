@@ -1,6 +1,7 @@
 import argparse
 import cv2
 import datetime
+import numpy as np
 
 # RGB decimals
 RED = (0, 0, 255)
@@ -28,6 +29,10 @@ MAX_VAL = 255
 # The delay of key waiting in cv2
 DELAY = 1
 
+# The method and the threshold to compare histograms.
+CV_COMP_CHISQR = 1
+HIST = 100000
+
 class Target(object):
 	"""Target monitoring system for limited area."""
 
@@ -46,7 +51,27 @@ class Target(object):
 		else:
 			self._camera = cv2.VideoCapture(self._args['video'])
 
+	def build_hist(self):
+		"""This function reads a list of image names to build
+		histograms for objects. It return a dictionary whose keys
+		and values are object names and histograms respectively."""
+
+		# Read the file that contains image names.
+		img_names = open('images/list', 'r')
+
+		# Create histograms for objects
+		histograms = dict()
+		for name in img_names:
+			img = cv2.imread(name[:-1], 0)
+			hist = cv2.calcHist([img], [0], None, [256], [0, 256])
+			histograms[name[8:-1]] = hist
+
+		return histograms
+
 	def run(self):
+		# Get histograms.
+		histograms = self.build_hist()
+
 		# Initialize the first frame of the video stream.
 		first_frame = None
 
@@ -94,8 +119,28 @@ class Target(object):
 				# Filter out the hand.
 				if x == 1 or y == 1 or w == 1 or h == 1:
 					continue
-				cv2.rectangle(frame, (x, y), (x + w, y + h), GREEN)
-				text = 'Changed'
+
+				# Find the mask and build a histogram for the object.
+				mask = np.zeros(frame.shape[:2], np.uint8)
+				mask[y:h, x:w] = 255
+				print type(mask)
+				print mask
+				masked_img = cv2.bitwise_and(frame, frame, mask = mask)
+				obj_hist = cv2.calcHist(masked_img, [0], None, [256], [0, 256])
+
+				# Compare the current object histogram with stored histograms.
+				for name in histograms.keys():
+					hist = histograms[name]
+					if cv2.compareHist(obj_hist, hist, COMP_CHISQR) < HIST:
+						cv2.rectangle(frame, (x, y), (x + w, y + h), GREEN)
+
+						# Tag the object.
+						cv2.putText(frame, '%s' % name, (x - 25, y - 10),
+									cv2.FONT_HERSHEY_SIMPLEX, 1, Green, 2,
+									cv2.CV_AA)
+
+						text = 'Changed'
+						break
 
 			# Draw the text and timestamp on the frame.
 			cv2.putText(frame, 'Status: {}'.format(text),
