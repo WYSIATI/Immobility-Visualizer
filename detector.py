@@ -64,9 +64,9 @@ class Target(object):
 		histograms = dict()
 		for name in img_names:
 			if len(name) > 1:
-				img = cv2.imread('images/%s' % name[:-1], 0)
+				img = cv2.imread('images/%s.png' % name[:-1], 0)
 				hist = cv2.calcHist([img], [0], None, [256], [0, 256])
-				histograms[name[7:-1]] = hist
+				histograms[name] = hist
 
 		return histograms
 
@@ -124,12 +124,12 @@ class Target(object):
 					continue
 
 				# Find the mask and build a histogram for the object.
-				mask = np.zeros(temp_gray.shape[:2], np.uint8)
+				mask = np.zeros(frame.shape[:2], np.uint8)
 				mask[y:y + h, x:x + w] = 255
-				masked_img = cv2.bitwise_and(temp_gray, temp_gray, mask = mask)
+				masked_img = cv2.bitwise_and(frame, frame, mask = mask)
 				# plt.imshow(masked_img)
 				# plt.show()
-				obj_hist = cv2.calcHist([temp_gray], [0], masked_img, [256], [0, 256])
+				obj_hist = cv2.calcHist([frame], [0], mask, [256], [0, 256])
 
 				# Compare the current object histogram with stored histograms.
 				for name in histograms.keys():
