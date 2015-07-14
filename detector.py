@@ -2,6 +2,7 @@ import argparse
 import cv2
 import datetime
 import numpy as np
+from matplotlib import pyplot as plt
 
 # RGB decimals
 RED = (0, 0, 255)
@@ -30,8 +31,8 @@ MAX_VAL = 255
 DELAY = 1
 
 # The method and the threshold to compare histograms.
-CV_COMP_CHISQR = 1
-HIST = 100000
+COMP_CHISQR = 1
+HIST = 50000
 
 class Target(object):
 	"""Target monitoring system for limited area."""
@@ -62,9 +63,10 @@ class Target(object):
 		# Create histograms for objects
 		histograms = dict()
 		for name in img_names:
-			img = cv2.imread(name[:-1], 0)
-			hist = cv2.calcHist([img], [0], None, [256], [0, 256])
-			histograms[name[8:-1]] = hist
+			if len(name) > 1:
+				img = cv2.imread('images/%s' % name[:-1], 0)
+				hist = cv2.calcHist([img], [0], None, [256], [0, 256])
+				histograms[name[7:-1]] = hist
 
 		return histograms
 
@@ -88,6 +90,7 @@ class Target(object):
 
 			# Convert the frame to grayscale and blur itself.
 			gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+			temp_gray = gray
 			gray = cv2.GaussianBlur(gray, KERNAL_SIZE, STANDARD_DEVIATION)
 
 			# If the first frame is None, initialize the first frame.
@@ -121,22 +124,23 @@ class Target(object):
 					continue
 
 				# Find the mask and build a histogram for the object.
-				mask = np.zeros(frame.shape[:2], np.uint8)
-				mask[y:h, x:w] = 255
-				print type(mask)
-				print mask
-				masked_img = cv2.bitwise_and(frame, frame, mask = mask)
-				obj_hist = cv2.calcHist(masked_img, [0], None, [256], [0, 256])
+				mask = np.zeros(temp_gray.shape[:2], np.uint8)
+				mask[y:y + h, x:x + w] = 255
+				masked_img = cv2.bitwise_and(temp_gray, temp_gray, mask = mask)
+				# plt.imshow(masked_img)
+				# plt.show()
+				obj_hist = cv2.calcHist([temp_gray], [0], masked_img, [256], [0, 256])
 
 				# Compare the current object histogram with stored histograms.
 				for name in histograms.keys():
 					hist = histograms[name]
+					print cv2.compareHist(obj_hist, hist, COMP_CHISQR)
 					if cv2.compareHist(obj_hist, hist, COMP_CHISQR) < HIST:
 						cv2.rectangle(frame, (x, y), (x + w, y + h), GREEN)
 
 						# Tag the object.
 						cv2.putText(frame, '%s' % name, (x - 25, y - 10),
-									cv2.FONT_HERSHEY_SIMPLEX, 1, Green, 2,
+									cv2.FONT_HERSHEY_SIMPLEX, 1, GREEN, 2,
 									cv2.CV_AA)
 
 						text = 'Changed'
