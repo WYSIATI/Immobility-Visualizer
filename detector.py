@@ -32,7 +32,7 @@ DELAY = 1
 
 # The method and the threshold to compare histograms.
 COMP_METHOD = 0
-HIST = 0.3
+HIST = 0.5
 
 class Target(object):
     """Target monitoring system for limited area."""
@@ -42,7 +42,7 @@ class Target(object):
         ap = argparse.ArgumentParser()
         ap.add_argument('-v', '--video', help='path to the video file')
         ap.add_argument('-a', '--min-pixels', type=int,
-                        default=300, help='minimum changed pixel number')
+                        default=1200, help='minimum changed pixel number')
         self._args = vars(ap.parse_args())
 
         # If the video argument is None, then we are reading from webcam.
@@ -122,7 +122,7 @@ class Target(object):
                 # it on the frame, and update the text.
                 x, y, w, h = cv2.boundingRect(contour)
                 # Filter out the hand.
-                if x == 1 or y == 1 or w == 1 or h == 1:
+                if x == 1 or y == 1:
                     continue
 
                 # Find the mask and build a histogram for the object.
@@ -137,9 +137,9 @@ class Target(object):
                     # Find the minimum distance histogram
                     for hist in histograms[name]:
                         retval = cv2.compareHist(obj_hist, hist, COMP_METHOD)
-                        if retval < current_min[1]:
+                        if retval < current_min[1] and retval > 0.1:
                             current_min = name, retval
-
+                print current_min
                 if current_min[1] < HIST:
                     # Draw the object boundary box.
                     cv2.rectangle(frame, (x, y), (x + w, y + h), GREEN)
