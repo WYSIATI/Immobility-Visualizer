@@ -139,7 +139,7 @@ class Target(object):
                         retval = cv2.compareHist(obj_hist, hist, COMP_METHOD)
                         if retval < current_min[1] and retval > 0.1:
                             current_min = name, retval
-                print current_min
+
                 if current_min[1] < HIST:
                     # Draw the object boundary box.
                     cv2.rectangle(frame, (x, y), (x + w, y + h), GREEN)
