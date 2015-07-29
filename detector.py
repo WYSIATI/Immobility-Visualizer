@@ -42,7 +42,7 @@ class Target(object):
         ap = argparse.ArgumentParser()
         ap.add_argument('-v', '--video', help='path to the video file')
         ap.add_argument('-a', '--min-pixels', type=int,
-                        default=1200, help='minimum changed pixel number')
+                        default=5000, help='minimum changed pixel number')
         self._args = vars(ap.parse_args())
 
         # If the video argument is None, then we are reading from webcam.
