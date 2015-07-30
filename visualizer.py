@@ -161,7 +161,7 @@ class Target(object):
                         cv2.FONT_HERSHEY_SIMPLEX, FONT_SIZE,RED, NORMAL)
 
             # Show the frame and record if the user presses a key.
-            cv2.imshow('Security Feed', frame)
+            cv2.imshow('Visualizer Feed', frame)
 
             # Wait for a exit signal that is a letter `q` or `Q` from the user.
             key = cv2.waitKey(DELAY) & 0xFF
