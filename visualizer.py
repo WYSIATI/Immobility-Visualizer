@@ -31,6 +31,7 @@ MAX_VAL = 255
 DELAY = 1
 
 # The method and the threshold to compare histograms.
+# Method value 0 stands for correlation (CV_COMP_CORREL).
 COMP_METHOD = 0
 HIST = 0.5
 
@@ -111,7 +112,6 @@ class Target(object):
             contours, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
                                            cv2.CHAIN_APPROX_SIMPLE)
 
-            # Iterate through the contours.
             for contour in contours:
                 # Ignore the contour that has less changed pixels than
                 # default or command-line-defined pixels number.
@@ -121,7 +121,8 @@ class Target(object):
                 # Compute the bounding box for the contour, draw
                 # it on the frame, and update the text.
                 x, y, w, h = cv2.boundingRect(contour)
-                # Filter out the hand.
+                # Filter out the hand and any other objects that connect
+                # to the edge of the frame.
                 if x == 1 or y == 1:
                     continue
 
